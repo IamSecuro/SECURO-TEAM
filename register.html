@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link rel="icon" href="img/icon.png">
+  <link rel="stylesheet" href="css/register.css">
+  
+</head>
+<body>
+  <h1>Register</h1>
+  <div class="form-container">
+    <form id="register-form">
+      <!-- Username -->
+      <div class="input-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <div class="error" id="username-error"></div>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <div class="error" id="password-error"></div>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="input-group" id="phone-container">
+        <input type="tel" id="phone-number" name="phoneNumber" placeholder="Phone Number" required>
+        <select id="state-select" name="state" required>
+          <option value="">Select Country</option>
+          <option value="US">United States</option>
+          <option value="PH">Philippines</option>
+          <option value="IN">India</option>
+        </select>
+      </div>
+      <div id="area-code"></div>
+
+      <!-- Address -->
+      <div class="input-group">
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" placeholder="Street, Barangay, City, Province, Country, ZipCode" required>
+        <div class="error" id="address-error"></div>
+      </div>
+
+      <!-- Camera & Upload -->
+      <div class="input-group">
+        <label>Upload/Capture 10+ face photos from different angles such as: SIDE ANGLE, FRONT ANGLE, LOOKING-UP ANGLE, & LOOKING-DOWN ANGLE:</label>
+        <div id="camera-container">
+          <div class="camera-box">
+            <video id="video" autoplay></video>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button type="button" id="capture-photo">Capture</button>
+          <button type="button" onclick="document.getElementById('photo-upload').click()">Upload</button>
+          <input type="file" id="photo-upload" accept="image/*" multiple />
+        </div>
+        <div id="photos-preview"></div>
+      </div>
+
+      <button type="submit">Next</button>
+    </form>
+  </div>
+
+  <script>
+    // Restrict phone input
+    const phoneInput = document.getElementById('phone-number');
+    phoneInput.addEventListener('input', () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, '');
+    });
+
+    // Area code logic
+    const areaCodes = { US: "+1", PH: "+63", IN: "+91" };
+    document.getElementById('state-select').addEventListener('change', function () {
+      const code = areaCodes[this.value] || '';
+      document.getElementById('area-code').textContent = code ? `Area code: ${code}` : '';
+    });
+
+    // Camera initialization
+    const video = document.getElementById('video');
+    const captureBtn = document.getElementById('capture-photo');
+    const uploadInput = document.getElementById('photo-upload');
+    const preview = document.getElementById('photos-preview');
+
+    let capturedImages = [];
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Cannot access the camera.");
+        console.error(err);
+      }
+    }
+
+    startCamera();
+
+    captureBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imgUrl = canvas.toDataURL('image/png');
+      addPhotoPreview(imgUrl);
+    });
+
+    uploadInput.addEventListener('change', () => {
+      const files = Array.from(uploadInput.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => addPhotoPreview(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function addPhotoPreview(imgUrl) {
+      capturedImages.push(imgUrl);
+      const photoDiv = document.createElement('div');
+      photoDiv.classList.add('photo-container');
+
+      const img = document.createElement('img');
+      img.src = imgUrl;
+
+      const removeBtn = document.createElement('div');
+      removeBtn.classList.add('remove-photo');
+      removeBtn.textContent = '×';
+      removeBtn.onclick = () => {
+        preview.removeChild(photoDiv);
+        capturedImages = capturedImages.filter(i => i !== imgUrl);
+      };
+
+      photoDiv.appendChild(img);
+      photoDiv.appendChild(removeBtn);
+      preview.appendChild(photoDiv);
+    }
+
+    // Optional: Handle form submission (send capturedImages with form data)
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (capturedImages.length < 10) {
+        alert("Please provide at least 10 photos.");
+        return;
+      }
+
+      const formData = new FormData(this);
+      capturedImages.forEach((dataURL, index) => {
+        formData.append(`photo${index + 1}`, dataURL);
+      });
+
+      // TODO: Submit `formData` to your server using fetch or AJAX
+      console.log("Form ready to be submitted!");
+    });
+  </script>
+</body>
+</html>
