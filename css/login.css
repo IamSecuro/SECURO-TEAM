@@ -4,6 +4,13 @@
       box-sizing: border-box;
       font-family: sans-serif;
     }
+    header {
+      position: flex;
+    }
+    header img {
+      width: 100%;
+      height: auto;
+    }
     body {
       display: flex;
       justify-content: center;

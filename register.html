@@ -6,52 +6,61 @@
   <title>Register</title>
   <link rel="icon" href="img/icon.png">
   <link rel="stylesheet" href="css/register.css">
-  
+
 </head>
 <body>
-  <h1>Register</h1>
+  <h1 class="register-title">
+    <img src="img/icon.png" alt="Icon" class="register-icon">
+    <span>REGISTER</span>
+  </h1>
   <div class="form-container">
     <form id="register-form">
       <!-- Username -->
       <div class="input-group">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
-        <div class="error" id="username-error"></div>
+
       </div>
 
       <!-- Password -->
       <div class="input-group">
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
-        <div class="error" id="password-error"></div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="input-group">
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" required>
+        <div class="error" id="confirm-password-error"></div>
       </div>
 
       <!-- Phone Number -->
       <div class="input-group" id="phone-container">
-        <input type="tel" id="phone-number" name="phoneNumber" placeholder="Phone Number" required>
+        <label class="pntextmove" for="phone-number">Phone Number:</label>
+        <input type="tel" id="phone-number" name="phoneNumber" required>
         <select id="state-select" name="state" required>
           <option value="">Select Country</option>
           <option value="US">United States</option>
           <option value="PH">Philippines</option>
           <option value="IN">India</option>
+
         </select>
+
       </div>
       <div id="area-code"></div>
 
       <!-- Address -->
       <div class="input-group">
         <label for="address">Address:</label>
-        <input type="text" id="address" name="address" placeholder="Street, Barangay, City, Province, Country, ZipCode" required>
-        <div class="error" id="address-error"></div>
+        <input type="text" id="address" name="address" required>
       </div>
 
       <!-- Camera & Upload -->
       <div class="input-group">
-        <label>Upload/Capture 10+ face photos from different angles such as: SIDE ANGLE, FRONT ANGLE, LOOKING-UP ANGLE, & LOOKING-DOWN ANGLE:</label>
+        <label>Upload or capture face photos from different angles (e.g., left, right, etc.), with a maximum of 20 photos.</label>
         <div id="camera-container">
-          <div class="camera-box">
-            <video id="video" autoplay></video>
-          </div>
+          <video id="video" autoplay></video>
         </div>
         <div class="camera-controls">
           <button type="button" id="capture-photo">Capture</button>
@@ -61,25 +70,24 @@
         <div id="photos-preview"></div>
       </div>
 
-      <button type="submit">Next</button>
+      <button id="nextbutton" type="submit">Next</button>
     </form>
   </div>
 
   <script>
-    // Restrict phone input
-    const phoneInput = document.getElementById('phone-number');
-    phoneInput.addEventListener('input', () => {
-      phoneInput.value = phoneInput.value.replace(/\D/g, '');
+    // Phone input restriction
+    document.getElementById('phone-number').addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '');
     });
 
-    // Area code logic
+    // Area code
     const areaCodes = { US: "+1", PH: "+63", IN: "+91" };
     document.getElementById('state-select').addEventListener('change', function () {
       const code = areaCodes[this.value] || '';
       document.getElementById('area-code').textContent = code ? `Area code: ${code}` : '';
     });
 
-    // Camera initialization
+    // Camera
     const video = document.getElementById('video');
     const captureBtn = document.getElementById('capture-photo');
     const uploadInput = document.getElementById('photo-upload');
@@ -93,32 +101,17 @@
         video.srcObject = stream;
       } catch (err) {
         alert("Cannot access the camera.");
-        console.error(err);
       }
     }
 
     startCamera();
 
-    captureBtn.addEventListener('click', () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imgUrl = canvas.toDataURL('image/png');
-      addPhotoPreview(imgUrl);
-    });
-
-    uploadInput.addEventListener('change', () => {
-      const files = Array.from(uploadInput.files);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => addPhotoPreview(e.target.result);
-        reader.readAsDataURL(file);
-      });
-    });
-
     function addPhotoPreview(imgUrl) {
+      if (capturedImages.length >= 20) {
+        alert("Maximum Exceed Photos");
+        return;
+      }
+
       capturedImages.push(imgUrl);
       const photoDiv = document.createElement('div');
       photoDiv.classList.add('photo-container');
@@ -139,22 +132,85 @@
       preview.appendChild(photoDiv);
     }
 
-    // Optional: Handle form submission (send capturedImages with form data)
+    captureBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imgUrl = canvas.toDataURL('image/png');
+      addPhotoPreview(imgUrl);
+    });
+
+    uploadInput.addEventListener('change', () => {
+      const files = Array.from(uploadInput.files);
+      for (const file of files) {
+        if (capturedImages.length >= 20) {
+          alert("Maximum Exceed Photos");
+          break;
+        }
+        const reader = new FileReader();
+        reader.onload = e => addPhotoPreview(e.target.result);
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Submit + Review Info
     document.getElementById('register-form').addEventListener('submit', function (e) {
       e.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const username = document.getElementById('username').value;
+      const phone = document.getElementById('phone-number').value;
+      const country = document.getElementById('state-select').value;
+      const address = document.getElementById('address').value;
+
+      if (password !== confirmPassword) {
+        document.getElementById('confirm-password-error').textContent = "Passwords do not match.";
+        return;
+      } else {
+        document.getElementById('confirm-password-error').textContent = "";
+      }
+
       if (capturedImages.length < 10) {
         alert("Please provide at least 10 photos.");
         return;
       }
 
-      const formData = new FormData(this);
-      capturedImages.forEach((dataURL, index) => {
-        formData.append(`photo${index + 1}`, dataURL);
-      });
+      const review = `
+        Username: ${username}
+        Phone: ${phone}
+        Country: ${country}
+        Address: ${address}
+        Total Photos: ${capturedImages.length}
+      `;
 
-      // TODO: Submit `formData` to your server using fetch or AJAX
-      console.log("Form ready to be submitted!");
+      if (confirm(`Review your info:\n\n${review}\n\nProceed?`)) {
+        alert("Form ready to be submitted!");
+        // Submit logic can go here.
+      }
     });
+
+      document.addEventListener('DOMContentLoaded', () => {
+      const requiredInputs = document.querySelectorAll('#register-form input[required], #register-form select[required]');
+
+     requiredInputs.forEach(input => {
+     input.addEventListener('blur', () => {
+      if (!input.value.trim()) {
+        input.classList.add('invalid');
+      } else {
+        input.classList.remove('invalid');
+      }
+    });
+
+    input.addEventListener('input', () => {
+      if (input.value.trim()) {
+        input.classList.remove('invalid');
+      }
+    });
+  });
+});
   </script>
 </body>
 </html>
