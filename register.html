@@ -189,9 +189,11 @@
       if (confirm(`Review your info:\n\n${review}\n\nProceed?`)) {
         alert("Form ready to be submitted!");
         // Submit logic can go here.
-      }
-    });
+      } 
 
+    localStorage.setItem('registeredUser', JSON.stringify(userData));
+    window.location.href = "mainpage.html"; 
+  });
       document.addEventListener('DOMContentLoaded', () => {
       const requiredInputs = document.querySelectorAll('#register-form input[required], #register-form select[required]');
 

@@ -1,0 +1,22 @@
+{
+  "name": "securo-team",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000S\u0000E\u0000C\u0000U\u0000R\u0000O\u0000-\u0000T\u0000E\u0000A\u0000M\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IamSecuro/SECURO-TEAM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IamSecuro/SECURO-TEAM/issues"
+  },
+  "homepage": "https://github.com/IamSecuro/SECURO-TEAM#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+   

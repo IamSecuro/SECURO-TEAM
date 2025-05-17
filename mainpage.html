@@ -98,5 +98,26 @@
     <p>© 2025 | All Rights Reserved by Carlos Hilado Memorial State University</p>
 </footer>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = localStorage.getItem('registeredUser');
+      if (!data) return;
+  
+      const user = JSON.parse(data);
+      document.getElementById('main-username').textContent = user.username;
+      document.getElementById('main-phone').textContent = user.phone;
+      document.getElementById('main-country').textContent = user.country;
+      document.getElementById('main-address').textContent = user.address;
+  
+      const photoContainer = document.getElementById('main-photos');
+      user.photos.forEach(photoUrl => {
+        const img = document.createElement('img');
+        img.src = photoUrl;
+        img.classList.add('preview-img');
+        photoContainer.appendChild(img);
+      });
+    });
+  </script>
+  
 </body>
 </html>

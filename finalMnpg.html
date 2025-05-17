@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="keywords" content="SECURO, Indoor Security, Robot, Monitoring">
+  <meta name="description" content="SECURO - Indoor security robot monitoring system.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="copyright" content="All Rights Reserved by CHMSU">
+  <title>SECURO - Home Monitoring</title>
+  
+
+  <link rel="icon" href="img/icon.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mainpage.css">
+
+  <style>
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+    }
+    
+    .card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .live-camera video {
+      width: 100%;
+      max-height: 500px;
+    }
+    
+    #activityLog, #usersMembers {
+      display: none;
+    }
+    
+    .mode-button {
+      width: 100%;
+    }
+    .mode-label {
+      font-weight: 600;
+    }
+    
+    #usersList li {
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    #usersList li:hover {
+      text-decoration: underline;
+    }
+    
+    .toggle-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+     
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 80px;
+      height: 40px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 30px;
+      width: 30px;
+      left: 5px;
+      bottom: 5px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #28a745;
+    }
+    input:checked + .slider:before {
+      transform: translateX(40px);
+    }
+    
+    header img {
+      max-width: 250px;
+      width: 100%;
+      border-radius: 15px;
+      padding: 10px;
+      border: 5px solid #0e0101;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: -20px;
+    }
+    
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; 
+      background-color: rgba(0, 0, 0, 0.6); 
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .modal-content {
+      background-color: #ffffff;
+      margin: 5% auto;
+      border-radius: 16px;
+      padding: 20px 25px;
+      width: 500px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+      animation: slideDown 0.4s ease-in-out;
+    }
+    
+    .modal-header {
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #eee;
+      margin-bottom: 15px;
+    }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    
+    .close-btn {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .close-btn:hover {
+      color: #e74c3c;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+      color: #444;
+    }
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-size: 0.95rem;
+    }
+    input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+    
+    .modal-footer {
+      text-align: right;
+      margin-top: 20px;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-success:hover {
+      background-color: #218838;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes slideDown {
+      from {transform: translateY(-30px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+    
+    #usersList {
+      margin-top: 10px;
+      padding-left: 0;
+    }
+    .user-item {
+      background-color: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .user-item span {
+      flex-grow: 1;
+      color: #007bff;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 10px;
+    }
+    .user-item span:hover {
+      text-decoration: underline;
+    }
+    .remove-user-btn {
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+    .user-actions {
+      margin-bottom: 10px;
+    }
+
+    #profileContent p {
+      margin: 8px 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 16px;
+      color: #333;
+      line-height: 1.6;
+      padding: 6px 10px;
+      border-left: 3px solid #4CAF50;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #profileContent p:hover {
+      background-color: #eefcef;
+      transform: translateX(4px);
+    }
+    
+    .profile-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .profile-images img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .profile-images img:hover {
+      transform: scale(1.1);
+    }
+    
+    #lightboxModal {
+      display: none;
+      position: fixed;
+      z-index: 1050;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+    }
+    #lightboxModal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+    
+    .topbar {
+      background-color: #0a0600;
+      color: white;
+      padding: 12px 0;
+      font-family: 'Arial', sans-serif;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    
+    .top-link .list-inline-item a {
+      color: #343a40;
+      font-size: 16px;
+      margin-right: 20px;
+      text-decoration: none;
+      transition: color 0.3s ease, border-bottom 0.3s ease;
+    }
+    .top-link .list-inline-item a:hover {
+      color: #ffffff;
+      background-color: #343a40;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    
+    .top-contact .list-inline-item {
+      color: #343a40;
+      font-size: 16px;
+      margin-left: 20px;
+    }
+    .top-contact .list-inline-item i {
+      margin-right: 5px;
+    }
+    .top-contact .list-inline-item:hover {
+      color: #ffffff;
+      background-color: #343a40;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 10px 0;
+      }
+      .top-link, .top-contact {
+        text-align: center;
+      }
+      .top-link .list-inline-item, .top-contact .list-inline-item {
+        display: block;
+        margin-bottom: 8px;
+      }
+    }
+    
+    .top-link .list-inline-item a.active {
+      color: #ffffff;
+      font-weight: bold;
+      background-color: #080808;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .confirmation-modal {
+      display: none;
+      position: fixed;
+      z-index: 1100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .confirmation-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 350px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    .confirmation-message {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+    
+    .confirmation-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .confirmation-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .confirm-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .confirm-btn:hover {
+      background-color: #c82333;
+    }
+    
+    .cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .cancel-btn:hover {
+      background-color: #5a6268;
+    }
+    
+    /* Info Modal Styles */
+    .info-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+    }
+    
+    .info-modal-content {
+      background-color: #f8f9fa;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 10px;
+      width: 70%;
+      max-width: 800px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    .info-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .info-modal-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #343a40;
+      margin: 0;
+    }
+    
+    .info-modal-close {
+      font-size: 28px;
+      font-weight: bold;
+      color: #6c757d;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    
+    .info-modal-close:hover {
+      color: #343a40;
+    }
+    
+    .info-modal-body {
+      line-height: 1.6;
+      color: #495057;
+    }
+    
+    .info-modal-body h3 {
+      color: #007bff;
+      margin-top: 20px;
+    }
+    
+    .info-modal-body p {
+      margin-bottom: 15px;
+    }
+    
+    .info-modal-body ul {
+      padding-left: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .info-modal-body li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+
+    <div class="topbar bg-dark text-white py-2">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-5">
+            <ul class="top-link list-inline mb-0">
+              <li class="list-inline-item"><a href="#" class="text-white" onclick="openInfoModal('about')">About</a></li>
+              <li class="list-inline-item"><a href="#" class="text-white" onclick="openInfoModal('manual')">User Manual</a></li>
+              <li class="list-inline-item"><a href="#" class="text-white" onclick="openInfoModal('contact')">Contact</a></li>
+              <li class="list-inline-item"><a href="#" class="text-white" onclick="openInfoModal('faq')">FAQ</a></li>
+              <li class="list-inline-item"><a href="#" class="text-white">Blog</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-6 col-md-7 text-md-end">
+            <ul class="top-contact list-inline mb-0">
+              <li class="list-inline-item"><i class="fa fa-phone"></i> +63 970 456 6890</li>
+              <li class="list-inline-item"><i class="fa fa-envelope"></i> support@securo.com</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-inner py-3 bg-light">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-3 col-md-3">
+            <div class="logo">
+              <img src="img/pic.png" alt="SECURO Logo" height="50">
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <nav class="navigation text-center">
+              <ul class="nav justify-content-center">
+                <li class="nav-item"><a class="nav-link" href="#security">Main</a></li>
+                <li class="nav-item"><a class="nav-link" href="register.html">Homeowner</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.html">Log Out</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="security" class="main-dashboard section py-5">
+    <div class="container">
+      <div class="row">
+      
+        <div class="col-lg-3 mb-3">
+          <button class="btn btn-primary w-100 mb-3" onclick="toggleVisibility('activityLog', 'usersMembers')">Activity Log</button>
+          <button class="btn btn-info w-100 mb-3" onclick="toggleVisibility('usersMembers', 'activityLog')">Members</button>
+          
+          <div id="activityLog" class="card">
+            <div class="card-header bg-primary text-white">Recent Activity Log</div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                <li>[05/07/2025 10:15] Motion detected in Living Room</li>
+                <li>[05/07/2025 09:55] Survey mode activated</li>
+                <li>[05/07/2025 09:50] Intruder alert at Front Door</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div id="usersMembers" class="card mt-3">
+            <div class="card-header bg-info text-white">Members</div>
+            <div class="card-body">
+              <div class="user-actions">
+                <button class="btn btn-success w-100" onclick="openAddUserModal()">Add Member</button>
+              </div>
+              <ul id="usersList" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-9 mb-3">
+      
+          <div class="card w-100 live-camera mb-3">
+            <div class="card-header bg-success text-white text-center">Live Camera Feed</div>
+            <div class="card-body text-center">
+              <video id="liveStream" controls>
+                <source src="rtsp://securo:teamsecuro@192.168.1.23:554/stream1" type="application/x-mpegURL">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+          
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="mb-3">Mode Selection</h5>
+              <div class="toggle-container">
+                <span class="mode-label" id="modeLabel">ARMED MODE</span>
+                <label class="switch">
+                  <input type="checkbox" id="modeToggle" onchange="handleModeToggle()">
+                  <span class="slider"></span>
+                </label>
+                <span class="mode-label">FRIENDLY MODE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Info Modals -->
+  <div id="aboutModal" class="info-modal">
+    <div class="info-modal-content">
+      <div class="info-modal-header">
+        <h2 class="info-modal-title">About SECURO</h2>
+        <span class="info-modal-close" onclick="closeInfoModal('aboutModal')">&times;</span>
+      </div>
+      <div class="info-modal-body">
+        <h3>Our Mission</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+        
+        <h3>Our Technology</h3>
+        <p>Vestibulum auctor dapibus neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tincidunt lorem enim, eget fringilla turpis congue vitae. Phasellus aliquam nisi ut lorem vestibulum eleifend. Nulla ut arcu non nisi congue venenatis vitae ut ante.</p>
+        
+        <h3>Our Team</h3>
+        <p>Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="manualModal" class="info-modal">
+    <div class="info-modal-content">
+      <div class="info-modal-header">
+        <h2 class="info-modal-title">User Manual</h2>
+        <span class="info-modal-close" onclick="closeInfoModal('manualModal')">&times;</span>
+      </div>
+      <div class="info-modal-body">
+        <h3>Getting Started</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+        
+        <h3>Features</h3>
+        <ul>
+          <li>Real-time monitoring: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+          <li>Motion detection: Phasellus imperdiet, nulla et dictum interdum.</li>
+          <li>User management: Nisi vitae suscipit tellus mauris a diam maecenas sed.</li>
+          <li>Security modes: Enim ut tellus elementum sagittis vitae et leo duis.</li>
+        </ul>
+        
+        <h3>Troubleshooting</h3>
+        <p>Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="contactModal" class="info-modal">
+    <div class="info-modal-content">
+      <div class="info-modal-header">
+        <h2 class="info-modal-title">Contact Us</h2>
+        <span class="info-modal-close" onclick="closeInfoModal('contactModal')">&times;</span>
+      </div>
+      <div class="info-modal-body">
+        <h3>Customer Support</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula.</p>
+        
+        <h3>Technical Support</h3>
+        <p>Email: support@securo.com<br>
+        Phone: +63 970 456 6890<br>
+        Hours: Monday-Friday, 8:00 AM to 5:00 PM</p>
+        
+        <h3>Headquarters</h3>
+        <p>123 Security Avenue<br>
+        Tech Park, Bacolod City<br>
+        Negros Occidental, Philippines 6100</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="faqModal" class="info-modal">
+    <div class="info-modal-content">
+      <div class="info-modal-header">
+        <h2 class="info-modal-title">Frequently Asked Questions</h2>
+        <span class="info-modal-close" onclick="closeInfoModal('faqModal')">&times;</span>
+      </div>
+      <div class="info-modal-body">
+        <h3>General Questions</h3>
+        <p><strong>Q: What is SECURO?</strong><br>
+        A: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris.</p>
+        
+        <p><strong>Q: How does the security system work?</strong><br>
+        A: Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+        
+        <h3>Technical Questions</h3>
+        <p><strong>Q: What are the system requirements?</strong><br>
+        A: Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+        
+        <p><strong>Q: How do I reset my password?</strong><br>
+        A: Vestibulum auctor dapibus neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="addUserModal" class="modal">
+    <div class="modal-content" id="draggableAddUser">
+      <div class="modal-header">
+        <h3>Add New User</h3>
+        <span class="close-btn" onclick="closeAddUserModal()">×</span>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+          <div class="form-group">
+            <label for="userName">Name (Format: Lastname/Suffix, Given Name, M.I.)</label>
+            <input type="text" class="form-control" id="userName" placeholder="Enter full name">
+          </div>
+          <div class="form-group">
+            <label for="userAge">Age</label>
+            <input type="text" class="form-control" id="userAge" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)" placeholder="Enter Age">
+          </div>
+          <div class="form-group">
+            <label for="userAddress">Address</label>
+            <input type="text" class="form-control" id="userAddress" placeholder="House/Unit No. and Street Name/Purok, Barangay, City/Municipality, Province, ZIP Code">
+          </div>
+          <div class="form-group">
+            <label for="userPhone">Phone Number</label>
+            <input type="text" class="form-control" id="userPhone" placeholder="11-digit number" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+          </div>
+          <div class="form-group">
+            <label for="userPicture">Upload Pictures (min 10)</label>
+            <input type="file" class="form-control" id="userPicture" accept="image/*" multiple>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="addUser()">Add</button>
+        <button class="btn btn-secondary" onclick="closeAddUserModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="userProfileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>User Profile</h3>
+        <span class="close-btn" onclick="closeUserProfile()">×</span>
+      </div>
+      <div class="modal-body" id="profileContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeUserProfile()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="lightboxModal" class="modal" onclick="this.style.display='none'">
+    <img id="lightboxImage" src="">
+  </div>
+
+  <div id="confirmationModal" class="confirmation-modal">
+    <div class="confirmation-content">
+      <div class="confirmation-message">Are you sure you want to remove this member?</div>
+      <div class="confirmation-buttons">
+        <button class="confirmation-btn cancel-btn" onclick="closeConfirmationModal()">Cancel</button>
+        <button class="confirmation-btn confirm-btn" onclick="confirmRemoveUser()">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+   
+    const userProfiles = {};
+    let currentUserToRemove = null;
+ 
+    function toggleVisibility(targetId, otherId) {
+      const target = document.getElementById(targetId);
+      const other = document.getElementById(otherId);
+
+      if (target.style.display === 'block') {
+        target.style.display = 'none';
+      } else {
+        
+        target.style.display = 'block';
+        other.style.display = 'none';
+      }
+    }
+
+    function handleModeToggle() {
+      const isChecked = document.getElementById('modeToggle').checked;
+      const label = document.getElementById('modeLabel');
+      label.textContent = isChecked ? "FRIENDLY MODE" : "ARMED MODE";
+      label.style.color = isChecked ? "#28a745" : "#dc3545";
+    }
+
+    function addUser() {
+      const userName = document.getElementById('userName').value;
+      const userAge = document.getElementById('userAge').value;
+      const userAddress = document.getElementById('userAddress').value;
+      const userPhone = document.getElementById('userPhone').value;
+      const userPicture = document.getElementById('userPicture').files;
+
+      if (!userName || !userAge || !userAddress || !userPhone) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      const phoneDigitsOnly = userPhone.replace(/\D/g, '');
+      if (phoneDigitsOnly.length !== 11) {
+        alert('Phone number must be exactly 11 digits.');
+        return;
+      }
+
+      if (userPicture.length < 10) {
+        alert('You must upload at least 10 photos of your face in different angles.');
+        return;
+      }
+
+      const pictureUrls = [];
+      for (let i = 0; i < userPicture.length; i++) {
+        pictureUrls.push(URL.createObjectURL(userPicture[i]));
+      }
+
+      userProfiles[userName] = {
+        name: userName,
+        age: userAge,
+        address: userAddress,
+        phone: userPhone,
+        pictures: pictureUrls
+      };
+
+      const userList = document.getElementById('usersList');
+      const newItem = document.createElement('li');
+      newItem.className = 'user-item';
+      newItem.innerHTML = `
+        <span onclick="showUserProfile('${userName}')" title="${userName}">${userName}</span>
+        <button class="btn btn-sm btn-danger remove-user-btn" onclick="showRemoveConfirmation(this)">Remove</button>
+      `;
+      userList.appendChild(newItem);
+
+      closeAddUserModal();
+      document.getElementById('addUserForm').reset();
+    }
+
+    function showRemoveConfirmation(button) {
+      const userItem = button.closest('.user-item');
+      currentUserToRemove = {
+        element: userItem,
+        name: userItem.querySelector('span').innerText
+      };
+      document.getElementById('confirmationModal').style.display = 'block';
+    }
+
+    function confirmRemoveUser() {
+      if (currentUserToRemove) {
+        delete userProfiles[currentUserToRemove.name];
+        currentUserToRemove.element.remove();
+        currentUserToRemove = null;
+        closeConfirmationModal();
+      }
+    }
+
+    function closeConfirmationModal() {
+      currentUserToRemove = null;
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    function openAddUserModal() {
+      document.getElementById('addUserModal').style.display = 'block';
+    }
+
+    function closeAddUserModal() {
+      document.getElementById('addUserModal').style.display = 'none';
+    }
+
+    function showUserProfile(name) {
+      const user = userProfiles[name];
+      const profileContent = document.getElementById('profileContent');
+      
+      profileContent.innerHTML = `
+        <p><strong>Name:</strong> ${user.name}</p>
+        <p><strong>Age:</strong> ${user.age}</p>
+        <p><strong>Address:</strong> ${user.address}</p>
+        <p><strong>Phone:</strong> ${user.phone}</p>
+        <div><strong>Pictures:</strong></div>
+        <div class="profile-images">
+          ${user.pictures.map(picture => `<img src="${picture}" onclick="openLightbox('${picture}')"/>`).join('')}
+        </div>
+      `;
+      
+      document.getElementById('userProfileModal').style.display = 'block';
+    }
+
+    function closeUserProfile() {
+      document.getElementById('userProfileModal').style.display = 'none';
+    }
+
+    function openLightbox(src) {
+      const modal = document.getElementById('lightboxModal');
+      const image = document.getElementById('lightboxImage');
+      image.src = src;
+      modal.style.display = 'flex';
+    }
+    
+    // Info Modal Functions
+    function openInfoModal(type) {
+      let modalId;
+      switch(type) {
+        case 'about':
+          modalId = 'aboutModal';
+          break;
+        case 'manual':
+          modalId = 'manualModal';
+          break;
+        case 'contact':
+          modalId = 'contactModal';
+          break;
+        case 'faq':
+          modalId = 'faqModal';
+          break;
+        default:
+          return;
+      }
+      document.getElementById(modalId).style.display = 'block';
+    }
+    
+    function closeInfoModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      const modals = ['aboutModal', 'manualModal', 'contactModal', 'faqModal', 'addUserModal', 'userProfileModal', 'confirmationModal'];
+      modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
