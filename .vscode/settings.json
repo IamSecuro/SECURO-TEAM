@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "F:\\SECURO-TEAM\\OpenCV\\securo_new\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.venvPath": "F:\\SECURO-TEAM\\OpenCV",
+  "terminal.integrated.inheritEnv": false,
+  "python.terminal.activateEnvironmentInCurrentTerminal": true,
+  "python.analysis.diagnosticMode": "workspace"
+}

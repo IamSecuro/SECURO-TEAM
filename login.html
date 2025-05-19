@@ -7,6 +7,37 @@
   <link rel="icon" href="img/icon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
   <link rel="stylesheet" href="css/login.css" />
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd_dgcQNudi4x8TIm1BmFV-DMXhG5fio4",
+      authDomain: "securo-database.firebaseapp.com",
+      databaseURL: "https://securo-database-default-rtdb.firebaseio.com",
+      projectId: "securo-database",
+      storageBucket: "securo-database.appspot.com",
+      messagingSenderId: "298798946059",
+      appId: "1:298798946059:web:dea01e2a93709d08dbf40e",
+      measurementId: "G-VM9J6W4BNJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', function() {
+      const loggedInUser = sessionStorage.getItem('securo_user');
+      if (loggedInUser) {
+        window.location.href = "finalMnpg.html";
+      }
+    });
+  </script>
 </head>
 <header>
   <img src="img/pic.png" alt="Header Image" class="header-image">
@@ -14,7 +45,7 @@
 <body>
   <div class="container">
     <h2>Login</h2>
-    <form>
+    <form id="login-form">
       <label for="phone">Phone Number:</label>
       <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required>
 
@@ -26,8 +57,10 @@
         </span>
       </div>
 
-      <a href="mainpage.html" class="login-button">Login</a>
+      <button type="submit" class="login-button">Login</button>
       <a href="register.html" class="login-button register-button">Register</a>
+      
+      <div id="login-error" class="error-message"></div>
     </form>
   </div>
 
@@ -45,6 +78,61 @@
         eyeIcon.classList.add("fa-eye");
       }
     }
+
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('login-error');
+      
+      // Clear previous errors
+      errorElement.textContent = '';
+      
+      // Show loading state
+      const loginBtn = document.querySelector('.login-button');
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+      
+      // Authenticate with Firebase
+      database.ref('users').orderByChild('phoneNumber').equalTo(phone).once('value')
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            const userKey = Object.keys(snapshot.val())[0];
+            const userData = snapshot.val()[userKey];
+            
+            if (userData.password === password) {
+              // Successful login - store complete user profile in sessionStorage
+              sessionStorage.setItem('securo_user', JSON.stringify({
+                id: userKey,
+                phone: userData.phoneNumber,
+                username: userData.username,
+                name: userData.name,
+                age: userData.age,
+                address: userData.address,
+                pictures: userData.pictures || []
+              }));
+              
+              // Redirect to final main page
+              window.location.href = "finalMnpg.html";
+            } else {
+              errorElement.textContent = "Invalid password. Please try again.";
+              loginBtn.disabled = false;
+              loginBtn.textContent = 'Login';
+            }
+          } else {
+            errorElement.textContent = "No account found with this phone number.";
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+          }
+        })
+        .catch(error => {
+          errorElement.textContent = "Login error: " + error.message;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        });
+    });
   </script>
 </body>
 </html>

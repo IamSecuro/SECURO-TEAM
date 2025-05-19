@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="keywords" content="SECURO, Indoor Security, Robot, Monitoring">
@@ -10,11 +9,8 @@
   <meta name="copyright" content="All Rights Reserved by CHMSU">
   <title>SECURO - Home Monitoring</title>
   
-
   <link rel="icon" href="img/icon.png">
-
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/normalize.css">
@@ -23,7 +19,6 @@
   <link rel="stylesheet" href="css/mainpage.css">
 
   <style>
-
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #f4f4f4;
@@ -509,7 +504,6 @@
 <body>
 
   <header class="header">
-
     <div class="topbar bg-dark text-white py-2">
       <div class="container">
         <div class="row">
@@ -544,8 +538,8 @@
             <nav class="navigation text-center">
               <ul class="nav justify-content-center">
                 <li class="nav-item"><a class="nav-link" href="#security">Main</a></li>
-                <li class="nav-item"><a class="nav-link" href="register.html">Homeowner</a></li>
-                <li class="nav-item"><a class="nav-link" href="login.html">Log Out</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showLoggedInUserProfile()">Homeowner</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.html" onclick="logout()">Log Out</a></li>
               </ul>
             </nav>
           </div>
@@ -583,15 +577,12 @@
             </div>
           </div>
         </div>
-        
         <div class="col-lg-9 mb-3">
-      
           <div class="card w-100 live-camera mb-3">
             <div class="card-header bg-success text-white text-center">Live Camera Feed</div>
             <div class="card-body text-center">
               <video id="liveStream" controls>
                 <source src="rtsp://securo:teamsecuro@192.168.1.23:554/stream1" type="application/x-mpegURL">
-                Your browser does not support the video tag.
               </video>
             </div>
           </div>
@@ -771,10 +762,45 @@
 
   <!-- JavaScript -->
   <script>
-   
     const userProfiles = {};
     let currentUserToRemove = null;
- 
+    
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const loggedInUser = sessionStorage.getItem('securo_user');
+      if (!loggedInUser) {
+        window.location.href = "login.html";
+      }
+      
+      // Initialize mode toggle
+      handleModeToggle();
+    });
+
+    function logout() {
+      sessionStorage.removeItem('securo_user');
+    }
+
+    function showLoggedInUserProfile() {
+      const loggedInUser = JSON.parse(sessionStorage.getItem('securo_user'));
+      
+      if (loggedInUser) {
+        // Create a temporary profile in the userProfiles object
+        userProfiles[loggedInUser.name] = {
+          name: loggedInUser.name,
+          age: loggedInUser.age,
+          address: loggedInUser.address,
+          phone: loggedInUser.phone,
+          pictures: loggedInUser.pictures || []
+        };
+        
+        // Show the profile
+        showUserProfile(loggedInUser.name);
+      } else {
+        alert('No user profile found. Please log in again.');
+        window.location.href = "login.html";
+      }
+    }
+
     function toggleVisibility(targetId, otherId) {
       const target = document.getElementById(targetId);
       const other = document.getElementById(otherId);
@@ -782,7 +808,6 @@
       if (target.style.display === 'block') {
         target.style.display = 'none';
       } else {
-        
         target.style.display = 'block';
         other.style.display = 'none';
       }

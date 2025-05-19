@@ -6,7 +6,49 @@
   <title>Register</title>
   <link rel="icon" href="img/icon.png">
   <link rel="stylesheet" href="css/register.css">
+  <!-- Font Awesome for eye icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd_dgcQNudi4x8TIm1BmFV-DMXhG5fio4",
+      authDomain: "securo-database.firebaseapp.com",
+      databaseURL: "https://securo-database-default-rtdb.firebaseio.com",
+      projectId: "securo-database",
+      storageBucket: "securo-database.appspot.com",
+      messagingSenderId: "298798946059",
+      appId: "1:298798946059:web:dea01e2a93709d08dbf40e",
+      measurementId: "G-VM9J6W4BNJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+  </script>
+  
+  <style>
+    .password-container {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 35px;
+      cursor: pointer;
+      color: #666;
+    }
+    .error-message {
+      color: red;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <h1 class="register-title">
@@ -15,27 +57,24 @@
   </h1>
   <div class="form-container">
     <form id="register-form">
-      <!-- Username -->
       <div class="input-group">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
-
       </div>
 
-      <!-- Password -->
-      <div class="input-group">
+      <div class="input-group password-container">
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
+        <i class="toggle-password fas fa-eye" data-target="password"></i>
       </div>
 
-      <!-- Confirm Password -->
-      <div class="input-group">
+      <div class="input-group password-container">
         <label for="confirm-password">Confirm Password:</label>
         <input type="password" id="confirm-password" required>
+        <i class="toggle-password fas fa-eye" data-target="confirm-password"></i>
         <div class="error" id="confirm-password-error"></div>
       </div>
 
-      <!-- Phone Number -->
       <div class="input-group" id="phone-container">
         <label class="pntextmove" for="phone-number">Phone Number:</label>
         <input type="tel" id="phone-number" name="phoneNumber" required>
@@ -44,21 +83,17 @@
           <option value="US">United States</option>
           <option value="PH">Philippines</option>
           <option value="IN">India</option>
-
         </select>
-
       </div>
       <div id="area-code"></div>
 
-      <!-- Address -->
       <div class="input-group">
         <label for="address">Address:</label>
         <input type="text" id="address" name="address" required>
       </div>
 
-      <!-- Camera & Upload -->
       <div class="input-group">
-        <label>Upload or capture face photos from different angles (e.g., left, right, etc.), with a maximum of 20 photos.</label>
+        <label>Upload or capture face photos from different angles (max: 20)</label>
         <div id="camera-container">
           <video id="video" autoplay></video>
         </div>
@@ -71,28 +106,41 @@
       </div>
 
       <button id="nextbutton" type="submit">Next</button>
+      
+      <div class="login-link">
+        Already have an account? <a href="login.html">Login here</a>
+      </div>
     </form>
   </div>
 
   <script>
-    // Phone input restriction
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+      icon.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+      });
+    });
+
+    // Phone input restrict to digits
     document.getElementById('phone-number').addEventListener('input', e => {
       e.target.value = e.target.value.replace(/\D/g, '');
     });
 
-    // Area code
     const areaCodes = { US: "+1", PH: "+63", IN: "+91" };
     document.getElementById('state-select').addEventListener('change', function () {
       const code = areaCodes[this.value] || '';
       document.getElementById('area-code').textContent = code ? `Area code: ${code}` : '';
     });
 
-    // Camera
     const video = document.getElementById('video');
     const captureBtn = document.getElementById('capture-photo');
     const uploadInput = document.getElementById('photo-upload');
     const preview = document.getElementById('photos-preview');
-
     let capturedImages = [];
 
     async function startCamera() {
@@ -103,22 +151,18 @@
         alert("Cannot access the camera.");
       }
     }
-
     startCamera();
 
     function addPhotoPreview(imgUrl) {
       if (capturedImages.length >= 20) {
-        alert("Maximum Exceed Photos");
+        alert("Maximum of 20 photos exceeded.");
         return;
       }
-
       capturedImages.push(imgUrl);
       const photoDiv = document.createElement('div');
       photoDiv.classList.add('photo-container');
-
       const img = document.createElement('img');
       img.src = imgUrl;
-
       const removeBtn = document.createElement('div');
       removeBtn.classList.add('remove-photo');
       removeBtn.textContent = '×';
@@ -126,7 +170,6 @@
         preview.removeChild(photoDiv);
         capturedImages = capturedImages.filter(i => i !== imgUrl);
       };
-
       photoDiv.appendChild(img);
       photoDiv.appendChild(removeBtn);
       preview.appendChild(photoDiv);
@@ -146,7 +189,7 @@
       const files = Array.from(uploadInput.files);
       for (const file of files) {
         if (capturedImages.length >= 20) {
-          alert("Maximum Exceed Photos");
+          alert("Maximum of 20 photos exceeded.");
           break;
         }
         const reader = new FileReader();
@@ -155,16 +198,15 @@
       }
     });
 
-    // Submit + Review Info
     document.getElementById('register-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
+      const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirm-password').value;
-      const username = document.getElementById('username').value;
-      const phone = document.getElementById('phone-number').value;
+      const phone = document.getElementById('phone-number').value.trim();
       const country = document.getElementById('state-select').value;
-      const address = document.getElementById('address').value;
+      const address = document.getElementById('address').value.trim();
 
       if (password !== confirmPassword) {
         document.getElementById('confirm-password-error').textContent = "Passwords do not match.";
@@ -174,7 +216,7 @@
       }
 
       if (capturedImages.length < 10) {
-        alert("Please provide at least 10 photos.");
+        alert("Please provide at least 10 face photos.");
         return;
       }
 
@@ -187,32 +229,57 @@
       `;
 
       if (confirm(`Review your info:\n\n${review}\n\nProceed?`)) {
-        alert("Form ready to be submitted!");
-        // Submit logic can go here.
-      } 
+        // First check if phone number already exists
+        database.ref('users').orderByChild('phoneNumber').equalTo(phone).once('value')
+          .then(snapshot => {
+            if (snapshot.exists()) {
+              alert("This phone number is already registered. Please login instead.");
+              return;
+            }
+            
+            // If not exists, proceed with registration
+            const userData = {
+              username,
+              password,
+              phoneNumber: phone,
+              country,
+              address,
+              photos: capturedImages
+            };
 
-    localStorage.setItem('registeredUser', JSON.stringify(userData));
-    window.location.href = "mainpage.html"; 
-  });
-      document.addEventListener('DOMContentLoaded', () => {
+            const newUserRef = database.ref('users').push();
+            newUserRef.set(userData)
+              .then(() => {
+                alert("Registration successful! Please login with your credentials.");
+                window.location.href = "login.html";
+              })
+              .catch((error) => {
+                alert("Registration error: " + error.message);
+              });
+          })
+          .catch(error => {
+            alert("Error checking user: " + error.message);
+          });
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
       const requiredInputs = document.querySelectorAll('#register-form input[required], #register-form select[required]');
-
-     requiredInputs.forEach(input => {
-     input.addEventListener('blur', () => {
-      if (!input.value.trim()) {
-        input.classList.add('invalid');
-      } else {
-        input.classList.remove('invalid');
-      }
+      requiredInputs.forEach(input => {
+        input.addEventListener('blur', () => {
+          if (!input.value.trim()) {
+            input.classList.add('invalid');
+          } else {
+            input.classList.remove('invalid');
+          }
+        });
+        input.addEventListener('input', () => { 
+          if (input.value.trim()) {
+            input.classList.remove('invalid');
+          }
+        });
+      });
     });
-
-    input.addEventListener('input', () => {
-      if (input.value.trim()) {
-        input.classList.remove('invalid');
-      }
-    });
-  });
-});
   </script>
 </body>
 </html>
